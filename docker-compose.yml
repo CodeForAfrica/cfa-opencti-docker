@@ -9,7 +9,7 @@ x-connector-service-settings: &connnector-service-settings
     replicas: 1
     placement:
       constraints:
-        - node.role == opencti-core
+        - node.labels.opencti-core == true
   environment: &connector-environment-vars
     <<: *opencti-common-environment
     CONNECTOR_CONFIDENCE_LEVEL: 15 # From 0 (Unknown) to 100 (Fully trusted)
@@ -23,7 +23,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.role == cache-queue
+          - node.labels.cache-queue == true
     restart: always
     volumes:
       - redisdata:/data
@@ -74,7 +74,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.role == cache-queue
+          - node.labels.cache-queue == true
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -130,7 +130,7 @@ services:
       replicas: 3
       placement:
         constraints:
-          - node.role == opencti-core
+          - node.labels.opencti-core == true
     environment:
       <<: *opencti-common-environment
       WORKER_LOG_LEVEL: info
