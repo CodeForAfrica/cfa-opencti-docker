@@ -9,7 +9,7 @@ x-connector-service-settings: &connnector-service-settings
     replicas: 1
     placement:
       constraints:
-        - node.labels.opencti-core == true
+        - node.labels.role == opencti-core
   environment: &connector-environment-vars
     <<: *opencti-common-environment
     CONNECTOR_CONFIDENCE_LEVEL: 15 # From 0 (Unknown) to 100 (Fully trusted)
@@ -23,33 +23,10 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.cache-queue == true
+          - node.labels.role == cache-queue
     restart: always
     volumes:
       - redisdata:/data
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    environment:
-      # Comment-out the line below for a cluster of multiple nodes
-      - discovery.type=single-node
-      # Uncomment the line below below for a cluster of multiple nodes
-      # - cluster.name=docker-cluster
-      - xpack.ml.enabled=false
-      - xpack.security.enabled=false
-      - thread_pool.search.queue_size=5000
-      - logger.org.elasticsearch.discovery="ERROR"
-      - "ES_JAVA_OPTS=-Xms${ELASTIC_MEMORY_SIZE} -Xmx${ELASTIC_MEMORY_SIZE}"
-    restart: always
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
 
   minio:
     image: minio/minio:RELEASE.2024-01-16T16-07-38Z
@@ -74,7 +51,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.cache-queue == true
+          - node.labels.role == cache-queue
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -89,7 +66,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.role == opencti-core
+          - node.labels.role == opencti-core
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
@@ -100,7 +77,7 @@ services:
       - APP__APP_LOGS__LOGS_LEVEL=error
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
-      - ELASTICSEARCH__URL=http://elasticsearch:9200
+      - ELASTICSEARCH__URL=${ELASTICSEARCH__URL} #List of Elasticsearch URLS
       - MINIO__ENDPOINT=minio
       - MINIO__PORT=9000
       - MINIO__USE_SSL=false
@@ -119,7 +96,6 @@ services:
       - "8080:8080"
     depends_on:
       - redis
-      - elasticsearch
       - minio
       - rabbitmq
     restart: always
@@ -130,7 +106,7 @@ services:
       replicas: 3
       placement:
         constraints:
-          - node.labels.opencti-core == true
+          - node.labels.role == opencti-core
     environment:
       <<: *opencti-common-environment
       WORKER_LOG_LEVEL: info
@@ -189,7 +165,7 @@ services:
       CONNECTOR_ID: ${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
       CONNECTOR_TYPE: INTERNAL_IMPORT_FILE
       CONNECTOR_NAME: ImportFileStix
-      CONNECTOR_VALIDATE_BEFORE_IMPORT: true # Validate any bundle before import
+      CONNECTOR_VALIDATE_BEFORE_IMPORT:  # Validate any bundle before import
       CONNECTOR_SCOPE: application/json,text/xml
       CONNECTOR_AUTO: true # Enable/disable auto-import of file
     restart: always
