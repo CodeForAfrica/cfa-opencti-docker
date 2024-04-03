@@ -81,3 +81,10 @@ To stop all services by stopping and removing all the containers, run:
 ```bash
 docker stack rm cfa-opencti
 ```
+
+PS: Docker stack deploy doesn't load environment variables from a `.env` file (or any environment variable source). Therefore a workaround would be to `export` the environment variables to be available for the stack deploy command.
+To execute this
+
+```bash
+make deploy-stack STACK_NAME=<stack-name> COMPOSE_FILE=<compose-file>
+```
