@@ -38,7 +38,7 @@ services:
     volumes:
       - s3data:/data
     ports:
-      - "9000:9000"
+      - "9010:9000" #portainer exposed on port 9000
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -85,13 +85,13 @@ services:
       ELASTICSEARCH__URL: ${ELASTICSEARCH__URL} #List of Elasticsearch URLS
       MINIO__ENDPOINT: minio
       MINIO__PORT: 9000
-      MINIO__USE_SSL: false
+      MINIO__USE_SSL: "false"
       MINIO__ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO__SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       RABBITMQ__HOSTNAME: rabbitmq
       RABBITMQ__PORT: 5672
       RABBITMQ__PORT_MANAGEMENT: 15672
-      RABBITMQ__MANAGEMENT_SSL: false
+      RABBITMQ__MANAGEMENT_SSL: "false"
       RABBITMQ__USERNAME: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ__PASSWORD: ${RABBITMQ_DEFAULT_PASS}
       SMTP__HOSTNAME: ${SMTP_HOSTNAME}

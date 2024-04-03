@@ -3,6 +3,9 @@
 STACK_NAME ?= cfa_opencti
 COMPOSE_FILE?= docker-compose.yml
 
-deploy:
+deploy-stack:
 	@export $$(cat .env | xargs) && \
-	docker stack deploy -c docker-compose.yml $(STACK_NAME)
+	docker stack deploy -c $(COMPOSE_FILE) $(STACK_NAME)
+
+remove-stack:
+	docker stack rm $(STACK_NAME)

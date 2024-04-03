@@ -88,3 +88,9 @@ To execute this
 ```bash
 make deploy-stack STACK_NAME=<stack-name> COMPOSE_FILE=<compose-file>
 ```
+
+To remove the stack
+
+```bash
+make remove-stack STACK_NAME=<stack_name>
+```
