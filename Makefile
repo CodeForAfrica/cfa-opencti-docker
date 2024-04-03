@@ -1,4 +1,4 @@
-.PHONY: deploy-stack
+.PHONY: deploy-stack remove-stack
 
 STACK_NAME ?= cfa_opencti
 COMPOSE_FILE?= docker-compose.yml
