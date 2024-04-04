@@ -66,6 +66,15 @@ To deploy CfA's Open CTI services using Portainer's web UI:
 * To update a running stack with a newer production `docker-compose.yml`, open the *Editor* tab in the `cfa-opencti` stack page, update the Compose configuration, and click *Update the stack*;
 * Feel free to use Portainer's features to scale the services, update their configuration via environment variables, update resource limits, etc., using the web UI, just make sure to reflect the changes that you've made in the private authenticated Git repository with production `docker-compose.yml`.
 
+# Hash the password:
+
+1. Run:
+
+   `htpasswd -nb -B <username> <password> | cut -d ":" -f 2`
+
+2. Manually escape every '$' in hash by replacing it with '$$'.
+
+
 ### Deploying manually
 
 To deploy services, change the current directory to the one with production's `docker-compose.yml` and then run:
