@@ -61,5 +61,3 @@ Here are some common management tasks you can perform with Docker CLI and Portai
 
 
 ## OpenCTI Deployment
-
-
