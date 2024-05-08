@@ -16,6 +16,7 @@ x-connector-service-settings: &connnector-service-settings
     CONNECTOR_LOG_LEVEL: info
 
 
+
 services:
   nginx:
     image: codeforafrica/cfa-opencti:0.0.2
@@ -57,13 +58,13 @@ services:
     ports:
       - "9010:9000" #portainer exposed on port 9000
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-      MINIO__ENDPOINT: ${MINIO__ENDPOINT}
-      MINIO__ACCESS_KEY: ${MINIO__ACCESS_KEY}
-      MINIO__SECRET_KEY: ${MINIO__SECRET_KEY}
-      MINIO__BUCKET_NAME: ${MINIO__BUCKET_NAME}
-      MINIO__BUCKET_REGION: ${MINIO__BUCKET_REGION}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO__ENDPOINT=${MINIO__ENDPOINT}
+      - MINIO__ACCESS_KEY=${MINIO__ACCESS_KEY}
+      - MINIO__SECRET_KEY=${MINIO__SECRET_KEY}
+      - MINIO__BUCKET_NAME=${MINIO__BUCKET_NAME}
+      - MINIO__BUCKET_REGION=${MINIO__BUCKET_REGION}
     command: server /data
     restart: always
     networks:
@@ -77,9 +78,9 @@ services:
         constraints:
           - node.labels.role == cache-queue
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-      RABBITMQ_NODENAME: rabbit01@localhost
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_NODENAME=rabbit01@localhost
     volumes:
       - amqpdata:/var/lib/rabbitmq
     restart: always
@@ -94,30 +95,30 @@ services:
         constraints:
           - node.labels.role == opencti-core
     environment:
-      NODE_OPTIONS: --max-old-space-size=8096
-      APP__PORT: 8080
-      APP__BASE_URL: ${OPENCTI_BASE_URL}
-      APP__ADMIN__EMAIL: ${OPENCTI_ADMIN_EMAIL}
-      APP__ADMIN__PASSWORD: ${OPENCTI_ADMIN_PASSWORD}
-      APP__ADMIN__TOKEN: ${OPENCTI_ADMIN_TOKEN}
-      APP__APP_LOGS__LOGS_LEVEL: error
-      REDIS__HOSTNAME: redis
-      REDIS__PORT: 6379
-      ELASTICSEARCH__URL: ${ELASTICSEARCH__URL} #List of Elasticsearch URLS
-      MINIO__ENDPOINT: minio
-      MINIO__PORT: 9000
-      MINIO__USE_SSL: "false"
-      MINIO__ACCESS_KEY: ${MINIO_ROOT_USER}
-      MINIO__SECRET_KEY: ${MINIO_ROOT_PASSWORD}
-      RABBITMQ__HOSTNAME: rabbitmq
-      RABBITMQ__PORT: 5672
-      RABBITMQ__PORT_MANAGEMENT: 15672
-      RABBITMQ__MANAGEMENT_SSL: "false"
-      RABBITMQ__USERNAME: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ__PASSWORD: ${RABBITMQ_DEFAULT_PASS}
-      SMTP__HOSTNAME: ${SMTP_HOSTNAME}
-      SMTP__PORT: 25
-      PROVIDERS__LOCAL__STRATEGY: LocalStrategy
+      - NODE_OPTIONS=--max-old-space-size=8096
+      - APP__PORT=8080
+      - APP__BASE_URL=${OPENCTI_BASE_URL}
+      - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
+      - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
+      - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - APP__APP_LOGS__LOGS_LEVEL=error
+      - REDIS__HOSTNAME=redis
+      - REDIS__PORT=6379
+      - ELASTICSEARCH__URL=${ELASTICSEARCH__URL} #List of Elasticsearch URLS
+      - MINIO__ENDPOINT=minio
+      - MINIO__PORT=9000
+      - MINIO__USE_SSL=false
+      - MINIO__ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO__SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - RABBITMQ__HOSTNAME=rabbitmq
+      - RABBITMQ__PORT=5672
+      - RABBITMQ__PORT_MANAGEMENT=15672
+      - RABBITMQ__MANAGEMENT_SSL=false
+      - RABBITMQ__USERNAME=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ__PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - SMTP__HOSTNAME=${SMTP_HOSTNAME}
+      - SMTP__PORT=25
+      - PROVIDERS__LOCAL__STRATEGY=LocalStrategy
     ports:
       - "8080:8080"
     depends_on:
@@ -129,6 +130,7 @@ services:
       - cfa_opencti_network
 
   worker:
+    <<: *opencti-common-environment
     image: opencti/worker:6.0.8
     deploy:
       replicas: 3
@@ -136,8 +138,7 @@ services:
         constraints:
           - node.labels.role == opencti-core
     environment:
-      <<: *opencti-common-environment
-      WORKER_LOG_LEVEL: info
+      - WORKER_LOG_LEVEL=info
     depends_on:
       - opencti
     restart: always
@@ -145,15 +146,15 @@ services:
       - cfa_opencti_network
 
   connector-export-file-stix:
+    <<: *connector-environment-vars
     image: opencti/connector-export-file-stix:6.0.8
     deploy:
       <<: *connector-deploy-settings
     environment:
-      <<: *connector-environment-vars
-      CONNECTOR_ID: ${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
-      CONNECTOR_TYPE: INTERNAL_EXPORT_FILE
-      CONNECTOR_NAME: ExportFileStix2
-      CONNECTOR_SCOPE: application/json
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
+      - CONNECTOR_NAME=ExportFileStix2
+      - CONNECTOR_SCOPE=application/json
     restart: always
     depends_on:
       - opencti
@@ -161,15 +162,15 @@ services:
       - cfa_opencti_network
 
   connector-export-file-csv:
+    <<: *connector-environment-vars
     image: opencti/connector-export-file-csv:6.0.8
     deploy:
       <<: *connector-deploy-settings
     environment:
-      <<: *connector-environment-vars
-      CONNECTOR_ID: ${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
-      CONNECTOR_TYPE: INTERNAL_EXPORT_FILE
-      CONNECTOR_NAME: ExportFileCsv
-      CONNECTOR_SCOPE: text/csv
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
+      - CONNECTOR_NAME=ExportFileCsv
+      - CONNECTOR_SCOPE=text/csv
     restart: always
     depends_on:
       - opencti
@@ -177,15 +178,15 @@ services:
       - cfa_opencti_network
 
   connector-export-file-txt:
+    <<: *connector-environment-vars
     image: opencti/connector-export-file-txt:6.0.8
     deploy:
       <<: *connector-deploy-settings
     environment:
-      <<: *connector-environment-vars
-      CONNECTOR_ID: ${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
-      CONNECTOR_TYPE: INTERNAL_EXPORT_FILE
-      CONNECTOR_NAME: ExportFileTxt
-      CONNECTOR_SCOPE: text/plain
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
+      - CONNECTOR_NAME=ExportFileTxt
+      - CONNECTOR_SCOPE=text/plain
     restart: always
     depends_on:
       - opencti
@@ -193,17 +194,17 @@ services:
       - cfa_opencti_network
 
   connector-import-file-stix:
+    <<: *connector-environment-vars
     image: opencti/connector-import-file-stix:6.0.8
     deploy:
       <<: *connector-deploy-settings
     environment:
-      <<: *connector-environment-vars
-      CONNECTOR_ID: ${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
-      CONNECTOR_TYPE: INTERNAL_IMPORT_FILE
-      CONNECTOR_NAME: ImportFileStix
-      CONNECTOR_VALIDATE_BEFORE_IMPORT:  # Validate any bundle before import
-      CONNECTOR_SCOPE: application/json,text/xml
-      CONNECTOR_AUTO: "true" # Enable/disable auto-import of file
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
+      - CONNECTOR_NAME=ImportFileStix
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=false # Validate any bundle before import
+      - CONNECTOR_SCOPE=application/json,text/xml
+      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
     restart: always
     depends_on:
       - opencti
@@ -211,18 +212,18 @@ services:
       - cfa_opencti_network
 
   connector-import-document:
+    <<: *connector-environment-vars
     image: opencti/connector-import-document:6.0.8
     deploy:
       <<: *connector-deploy-settings
     environment:
-      <<: *connector-environment-vars
-      CONNECTOR_ID: ${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
-      CONNECTOR_TYPE: INTERNAL_IMPORT_FILE
-      CONNECTOR_NAME: ImportDocument
-      CONNECTOR_VALIDATE_BEFORE_IMPORT: "true" # Validate any bundle before import
-      CONNECTOR_SCOPE: application/pdf,text/plain,text/html
-      CONNECTOR_AUTO: "true" # Enable/disable auto-import of file
-      CONNECTOR_ONLY_CONTEXTUAL: "false" # Only extract data related to an entity (a report, a threat actor, etc.)
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
+      - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
+      - CONNECTOR_NAME=ImportDocument
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
+      - CONNECTOR_SCOPE=application/pdf,text/plain,text/html
+      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
+      - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
     restart: always
     depends_on:
       - opencti
@@ -234,7 +235,7 @@ services:
     environment:
       # REQUIRED: Should be equal to the service name prefixed by "tasks." when
       # deployed inside an overlay network
-      AGENT_CLUSTER_ADDR: tasks.portainer-agent
+      - AGENT_CLUSTER_ADDR=tasks.portainer-agent
       # AGENT_PORT: 9001
       # LOG_LEVEL: debug
     volumes:

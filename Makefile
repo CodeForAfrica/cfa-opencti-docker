@@ -1,4 +1,4 @@
-.PHONY: deploy-stack remove-stack
+.PHONY: deploy-stack remove-stack build-nginx
 
 STACK_NAME ?= cfa_opencti
 COMPOSE_FILE?= docker-compose.yml
