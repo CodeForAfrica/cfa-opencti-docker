@@ -103,3 +103,11 @@ To remove the stack
 ```bash
 make remove-stack STACK_NAME=<stack_name>
 ```
+
+Building Nginx image
+
+To build our custom nginx container, tag and push to Dockerhub, run the command
+
+```bash
+make build-nginx NGINX_TAG=<latest_tag>
+```
