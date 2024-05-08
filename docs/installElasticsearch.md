@@ -16,7 +16,7 @@ This guide provides detailed instructions on how to install and configure an Ela
 You can invoke this script or alternatively visit the official [documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html):
 
 ```bash
-./sceripts/installElasticearch
+./scripts/es_install_script
 
 ```
 
