@@ -88,7 +88,7 @@ services:
       - cfa_opencti_network
 
   opencti:
-    image: opencti/platform:6.0.8
+    image: opencti/platform:6.0.10
     deploy:
       replicas: 1
       placement:
@@ -131,7 +131,7 @@ services:
 
   worker:
     <<: *opencti-common-environment
-    image: opencti/worker:6.0.8
+    image: opencti/worker:6.0.10
     deploy:
       replicas: 3
       placement:
@@ -147,7 +147,7 @@ services:
 
   connector-export-file-stix:
     <<: *connector-environment-vars
-    image: opencti/connector-export-file-stix:6.0.8
+    image: opencti/connector-export-file-stix:6.0.10
     deploy:
       <<: *connector-deploy-settings
     environment:
@@ -163,7 +163,7 @@ services:
 
   connector-export-file-csv:
     <<: *connector-environment-vars
-    image: opencti/connector-export-file-csv:6.0.8
+    image: opencti/connector-export-file-csv:6.0.10
     deploy:
       <<: *connector-deploy-settings
     environment:
@@ -179,7 +179,7 @@ services:
 
   connector-export-file-txt:
     <<: *connector-environment-vars
-    image: opencti/connector-export-file-txt:6.0.8
+    image: opencti/connector-export-file-txt:6.0.10
     deploy:
       <<: *connector-deploy-settings
     environment:
@@ -195,7 +195,7 @@ services:
 
   connector-import-file-stix:
     <<: *connector-environment-vars
-    image: opencti/connector-import-file-stix:6.0.8
+    image: opencti/connector-import-file-stix:6.0.10
     deploy:
       <<: *connector-deploy-settings
     environment:
@@ -213,7 +213,7 @@ services:
 
   connector-import-document:
     <<: *connector-environment-vars
-    image: opencti/connector-import-document:6.0.8
+    image: opencti/connector-import-document:6.0.10
     deploy:
       <<: *connector-deploy-settings
     environment:
