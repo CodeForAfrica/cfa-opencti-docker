@@ -107,7 +107,8 @@ make remove-stack STACK_NAME=<stack_name>
 Building Nginx image
 
 To build our custom nginx container, tag and push to Dockerhub, run the command
+Note: We set the Nginx version to track the docker nginx versions [here](https://hub.docker.com/_/nginx)
 
 ```bash
-make build-nginx NGINX_TAG=<latest_tag>
+make build NGINX_TAG=<latest_tag>
 ```
