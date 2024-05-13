@@ -4,7 +4,7 @@ STACK_NAME ?= cfa_opencti
 COMPOSE_FILE?= docker-compose.yml
 NGINX_TAG?=0.0.1
 
-build-nginx:
+build:
 	docker buildx build --platform linux/amd64 -t codeforafrica/cfa-opencti-nginx:$(NGINX_TAG) --file nginx/Dockerfile nginx/ --push
 
 deploy-stack:
