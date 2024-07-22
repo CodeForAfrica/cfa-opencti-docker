@@ -1,7 +1,7 @@
 # For opencti
 server {
     listen ${NGINX_PORT};
-    server_name ${OPENCTI_SERVER_NAME};
+    server_name ${NGINX_OPENCTI_SERVER_NAME};
 
     location / {
         proxy_pass http://opencti:8080;
@@ -15,7 +15,7 @@ server {
 # For portainer
 server {
     listen ${NGINX_PORT};
-    server_name ${PORTAINER_SERVER_NAME};
+    server_name ${NGINX_PORTAINER_SERVER_NAME};
 
     location / {
         proxy_pass http://portainer:9000;
