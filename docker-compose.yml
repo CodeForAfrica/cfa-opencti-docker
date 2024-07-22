@@ -215,7 +215,9 @@ services:
     image: portainer/portainer
     command: >
       -H tcp://tasks.portainer-agent:9001 --tlsskipverify
-      --admin-password="$$2y$$05$$pZDaPit5nMFKZAOdT4m.v.NjuCJWzgK/1h4zkTbp1hNyuHdcvUhy6"
+      --admin-password=${PORTAINER_ADMIN_PASSWORD}
+    environment:
+      - PORTAINER_ADMIN_PASSWORD=${PORTAINER_ADMIN_PASSWORD}
     ports:
       - "9010:9000"
       - "8000:8000"
