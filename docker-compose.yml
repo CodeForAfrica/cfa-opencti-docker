@@ -5,8 +5,8 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
+          - node.labels.role == opencti-core
+      restart_policy: &default_restart_policy
         condition: on-failure
         delay: 3s
         max_attempts: 5
@@ -14,7 +14,6 @@ services:
     image: redis:7.2.4
     volumes:
       - redisdata:/data
-      
 
   nginx:
     image: codeforafrica/cfa-opencti:0.0.6
@@ -22,17 +21,12 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == manager
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+          - node.labels.role == manager
+      restart_policy: *default_restart_policy
     ports:
       - "80:80"
     depends_on:
       - opencti
-
 
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -40,12 +34,8 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+          - node.labels.role == opencti-core
+      restart_policy: *default_restart_policy
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -53,18 +43,13 @@ services:
     volumes:
       - amqpdata:/var/lib/rabbitmq
 
-
   opencti:
     deploy:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+          - node.labels.role == opencti-core
+      restart_policy: *default_restart_policy
     image: opencti/platform:6.1.1
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
@@ -119,25 +104,15 @@ services:
       placement:
         constraints:
           - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+      restart_policy: *default_restart_policy
 
-    
   connector-export-file-stix:
     deploy:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
-
+          - node.labels.role == opencti-core
+      restart_policy: *default_restart_policy
     image: opencti/connector-export-file-stix:6.1.1
     environment:
       - OPENCTI_URL=${OPENCTI_CONNECT_URL}
@@ -157,12 +132,8 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+          - node.labels.role == opencti-core
+      restart_policy: *default_restart_policy
     image: opencti/connector-export-file-csv:6.1.1
     environment:
       - OPENCTI_URL=${OPENCTI_CONNECT_URL}
@@ -182,12 +153,8 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+          - node.labels.role == opencti-core
+      restart_policy: *default_restart_policy
     image: opencti/connector-export-file-txt:6.1.1
     environment:
       - OPENCTI_URL=${OPENCTI_CONNECT_URL}
@@ -207,12 +174,8 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+          - node.labels.role == opencti-core
+      restart_policy: *default_restart_policy
     image: opencti/connector-import-file-stix:6.1.1
     environment:
       - OPENCTI_URL=${OPENCTI_CONNECT_URL}
@@ -228,18 +191,14 @@ services:
       - CONNECTOR_LOG_LEVEL=info=error
     depends_on:
       - opencti
-      
+
   connector-import-document:
     deploy:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+          - node.labels.role == opencti-core
+      restart_policy: *default_restart_policy
     image: opencti/connector-import-document:6.1.1
     environment:
       - OPENCTI_URL=${OPENCTI_CONNECT_URL}
@@ -257,18 +216,14 @@ services:
       - IMPORT_DOCUMENT_CREATE_INDICATOR=true
     depends_on:
       - opencti
-    
+
   connector-disarm-framework:
     deploy:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
-      restart_policy:
-        condition: on-failure
-        delay: 3s
-        max_attempts: 5
-        window: 60s
+          - node.labels.role == opencti-core
+      restart_policy: *default_restart_policy
     image: opencti/connector-disarm-framework:6.1.1
     environment:
       - OPENCTI_URL=${OPENCTI_CONNECT_URL}
@@ -284,13 +239,6 @@ services:
       - DISARM_FRAMEWORK_INTERVAL=7 # In days, must be strictly greater than 1
     depends_on:
       - opencti
-
-# volumes:
-#   esdata:
-#   s3data:
-#   redisdata:
-#   amqpdata:
-
 
 volumes:
   s3data:
