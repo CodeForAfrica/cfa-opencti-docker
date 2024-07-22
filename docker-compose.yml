@@ -6,8 +6,12 @@ services:
       placement:
         constraints:
         - node.labels.role == opencti-core
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
     image: redis:7.2.4
-    restart: always
     volumes:
       - redisdata:/data
       
@@ -19,37 +23,36 @@ services:
       placement:
         constraints:
         - node.labels.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
     ports:
       - "80:80"
     depends_on:
       - opencti
 
-  minio:
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
     deploy:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core  
-    image: minio/minio:RELEASE.2024-01-16T16-07-38Z
-    volumes:
-      - s3data:/data
-    ports:
-      - "9000:9000"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
-    command: server /data
-    restart: always
-
-  rabbitmq:
-    image: rabbitmq:3.13-management
+        - node.labels.role == opencti-core
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - RABBITMQ_NODENAME=rabbit01@localhost
     volumes:
       - amqpdata:/var/lib/rabbitmq
-    restart: always
+
 
   opencti:
     deploy:
@@ -57,7 +60,12 @@ services:
       placement:
         constraints:
         - node.labels.role == opencti-core
-    image: opencti/platform:6.0.10
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+    image: opencti/platform:6.1.1
     environment:
       - NODE_OPTIONS=--max-old-space-size=8096
       - APP__PORT=8080
@@ -66,15 +74,19 @@ services:
       - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
       - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
       - APP__APP_LOGS__LOGS_LEVEL=error
+      - APP__APP_LOGS__LOGS_CONSOLE=true # Output in the container console
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
       - ELASTICSEARCH__SSL__REJECT_UNAUTHORIZED="false"
       - "ELASTICSEARCH__URL=[\"https://${ELASTIC_USER}:${ELASTICPASSWORD}@${ELASTIC_IP_1}:${ELASTIC_PORT}\", \"https://${ELASTIC_USER}:${ELASTICPASSWORD}@${ELASTIC_IP_2}:${ELASTIC_PORT}\", \"https://${ELASTIC_USER}:${ELASTICPASSWORD}@${ELASTIC_IP_3}:${ELASTIC_PORT}\"]"
-      - MINIO__ENDPOINT=minio
-      - MINIO__PORT=9000
-      - MINIO__USE_SSL=false
-      - MINIO__ACCESS_KEY=${MINIO_ROOT_USER}
-      - MINIO__SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - ELASTICSEARCH__INDEX_PREFIX=opencti
+      - MINIO__ENDPOINT=${MINIO__ENDPOINT}
+      - MINIO__PORT=${MINIO__PORT}
+      - MINIO__USE_SSL=${MINIO__USE_SSL}
+      - MINIO__ACCESS_KEY=${MINIO__ACCESS_KEY}
+      - MINIO__SECRET_KEY=${MINIO__SECRET_KEY}
+      - MINIO__BUCKET_NAME=${MINIO__BUCKET_NAME}
+      - MINIO__BUCKET_REGION=${MINIO__BUCKET_REGION}
       - RABBITMQ__HOSTNAME=rabbitmq
       - RABBITMQ__PORT=5672
       - RABBITMQ__PORT_MANAGEMENT=15672
@@ -91,14 +103,14 @@ services:
       - elasticsearch
       - minio
       - rabbitmq
-    restart: always
 
   worker:
-    image: opencti/worker:6.0.10
+    image: opencti/worker:6.1.1
     environment:
-      - OPENCTI_URL=${OPENCTI_BASE_URL}
+      - OPENCTI_URL=${OPENCTI_CONNECT_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - WORKER_LOG_LEVEL=info
+      - OPENCTI_JSON_LOGGING=true # Enable / disable JSON logging
+      - WORKER_LOG_LEVEL=error
     depends_on:
       - opencti
     deploy:
@@ -107,7 +119,12 @@ services:
       placement:
         constraints:
           - node.labels.role == opencti-core
-    restart: always
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+
     
   connector-export-file-stix:
     deploy:
@@ -115,17 +132,23 @@ services:
       placement:
         constraints:
         - node.labels.role == opencti-core
-    image: opencti/connector-export-file-stix:6.0.10
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+
+    image: opencti/connector-export-file-stix:6.1.1
     environment:
-      - OPENCTI_URL=${OPENCTI_BASE_URL}
+      - OPENCTI_URL=${OPENCTI_CONNECT_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
-    restart: always
+      - OPENCTI_JSON_LOGGING=true # Enable / disable JSON logging
+      - CONNECTOR_LOG_LEVEL=info=error
     depends_on:
       - opencti
 
@@ -135,17 +158,22 @@ services:
       placement:
         constraints:
         - node.labels.role == opencti-core
-    image: opencti/connector-export-file-csv:6.0.10
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+    image: opencti/connector-export-file-csv:6.1.1
     environment:
-      - OPENCTI_URL=${OPENCTI_BASE_URL}
+      - OPENCTI_URL=${OPENCTI_CONNECT_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileCsv
       - CONNECTOR_SCOPE=text/csv
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
-    restart: always
+      - OPENCTI_JSON_LOGGING=true # Enable / disable JSON logging
+      - CONNECTOR_LOG_LEVEL=info=error
     depends_on:
       - opencti
 
@@ -155,17 +183,22 @@ services:
       placement:
         constraints:
         - node.labels.role == opencti-core
-    image: opencti/connector-export-file-txt:6.0.10
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+    image: opencti/connector-export-file-txt:6.1.1
     environment:
-      - OPENCTI_URL=${OPENCTI_BASE_URL}
+      - OPENCTI_URL=${OPENCTI_CONNECT_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileTxt
       - CONNECTOR_SCOPE=text/plain
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
-    restart: always
+      - OPENCTI_JSON_LOGGING=true # Enable / disable JSON logging
+      - CONNECTOR_LOG_LEVEL=info=error
     depends_on:
       - opencti
 
@@ -175,9 +208,14 @@ services:
       placement:
         constraints:
         - node.labels.role == opencti-core
-    image: opencti/connector-import-file-stix:6.0.10
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+    image: opencti/connector-import-file-stix:6.1.1
     environment:
-      - OPENCTI_URL=${OPENCTI_BASE_URL}
+      - OPENCTI_URL=${OPENCTI_CONNECT_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
@@ -186,8 +224,8 @@ services:
       - CONNECTOR_SCOPE=application/json,text/xml
       - CONNECTOR_AUTO=true # Enable/disable auto-import of file
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
-    restart: always
+      - OPENCTI_JSON_LOGGING=true # Enable / disable JSON logging
+      - CONNECTOR_LOG_LEVEL=info=error
     depends_on:
       - opencti
       
@@ -197,9 +235,14 @@ services:
       placement:
         constraints:
         - node.labels.role == opencti-core
-    image: opencti/connector-import-document:6.0.10
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+    image: opencti/connector-import-document:6.1.1
     environment:
-      - OPENCTI_URL=${OPENCTI_BASE_URL}
+      - OPENCTI_URL=${OPENCTI_CONNECT_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
@@ -209,9 +252,9 @@ services:
       - CONNECTOR_AUTO=true # Enable/disable auto-import of file
       - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
+      - OPENCTI_JSON_LOGGING=true # Enable / disable JSON logging
+      - CONNECTOR_LOG_LEVEL=info=error
       - IMPORT_DOCUMENT_CREATE_INDICATOR=true
-    restart: always
     depends_on:
       - opencti
     
@@ -221,24 +264,50 @@ services:
       placement:
         constraints:
         - node.labels.role == opencti-core
-    image: opencti/connector-disarm-framework:6.0.10
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+    image: opencti/connector-disarm-framework:6.1.1
     environment:
-      - OPENCTI_URL=${OPENCTI_BASE_URL}
+      - OPENCTI_URL=${OPENCTI_CONNECT_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${DISARM_CONNECTOR_ID}
       - "CONNECTOR_NAME=DISARM Framework"
       - CONNECTOR_SCOPE=marking-definition,identity,attack-pattern,course-of-action,intrusion-set,campaign,malware,tool,report,narrative,event,channel
       - CONNECTOR_CONFIDENCE_LEVEL=75 # From 0 (Unknown) to 100 (Fully trusted)
       - CONNECTOR_RUN_AND_TERMINATE=false
-      - CONNECTOR_LOG_LEVEL=error
+      - OPENCTI_JSON_LOGGING=true # Enable / disable JSON logging
+      - CONNECTOR_LOG_LEVEL=info=error
       - DISARM_FRAMEWORK_URL=https://raw.githubusercontent.com/DISARMFoundation/DISARMframeworks/main/generated_files/DISARM_STIX/DISARM.json
       - DISARM_FRAMEWORK_INTERVAL=7 # In days, must be strictly greater than 1
-    restart: always
     depends_on:
       - opencti
 
+# volumes:
+#   esdata:
+#   s3data:
+#   redisdata:
+#   amqpdata:
+
+
 volumes:
-  esdata:
   s3data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/opencti/volumes/s3data
   redisdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/opencti/volumes/redisdata
   amqpdata:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/opencti/volumes/amqpdata
