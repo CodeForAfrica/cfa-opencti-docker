@@ -25,7 +25,7 @@ services:
         constraints:
           - node.role == manager
     ports:
-      - "80:80"
+      - "${NGINX_PORT}:80"
     environment:
       - NGINX_PORT=${NGINX_PORT}
       - NGINX_OPENCTI_SERVER_NAME=${NGINX_OPENCTI_SERVER_NAME}
