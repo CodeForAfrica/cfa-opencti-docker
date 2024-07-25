@@ -296,4 +296,3 @@ volumes:
       type: none
       o: bind
       device: /home/ubuntu/opencti/volumes/amqpdata
-
