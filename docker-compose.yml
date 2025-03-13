@@ -51,7 +51,7 @@ services:
       - APP__ADMIN__EMAIL=${OPENCTI_ADMIN_EMAIL}
       - APP__ADMIN__PASSWORD=${OPENCTI_ADMIN_PASSWORD}
       - APP__ADMIN__TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - APP__APP_LOGS__LOGS_LEVEL=debug
+      - APP__APP_LOGS__LOGS_LEVEL=error
       - APP__APP_LOGS__LOGS_CONSOLE=true # Output in the container console
       - REDIS__HOSTNAME=redis
       - REDIS__PORT=6379
@@ -115,7 +115,7 @@ services:
       - CONNECTOR_SCOPE=application/json
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
       - OPENCTI_JSON_LOGGING=true # Enable / disable JSON logging
-      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_LOG_LEVEL=error
     restart: always
     depends_on:
       - opencti
@@ -199,7 +199,7 @@ services:
     environment:
       - OPENCTI_URL=${OPENCTI_CONNECT_URL}
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=c3970f8a-ce4b-4497-a381-20b7256f56f0 # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportDocument
       - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
@@ -207,7 +207,7 @@ services:
       - CONNECTOR_AUTO=true # Enable/disable auto-import of file
       - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=error
+      - CONNECTOR_LOG_LEVEL=debug
       - IMPORT_DOCUMENT_CREATE_INDICATOR=true
     restart: always
     depends_on:
