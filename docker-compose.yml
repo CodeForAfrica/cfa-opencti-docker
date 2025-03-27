@@ -19,7 +19,7 @@ services:
       - redisdata:/data
       
   nginx:
-    image: codeforafrica/cfa-opencti:0.0.6
+    image: codeforafrica/nginx-opencti:0.0.7
     deploy:
       replicas: 1
       placement:
@@ -211,7 +211,7 @@ services:
       - CONNECTOR_AUTO=true # Enable/disable auto-import of file
       - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
       - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=debug
+      - CONNECTOR_LOG_LEVEL=error
       - IMPORT_DOCUMENT_CREATE_INDICATOR=true
     depends_on:
       - opencti
