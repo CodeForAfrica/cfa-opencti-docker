@@ -2,7 +2,7 @@
 
 STACK_NAME?=nginx-opencti
 COMPOSE_FILE?=docker-compose.yml
-NGINX_VERSION?=0.0.7 #based off Nginx docker  version
+NGINX_VERSION?=1.27.0 #based off Nginx docker  version
 
 # build Nginx image & push to dockerhub
 build:
