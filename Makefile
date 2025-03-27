@@ -1,12 +1,12 @@
 .PHONY: deploy remove build
 
-STACK_NAME ?= cfa_opencti
-COMPOSE_FILE?= docker-compose.yml
-NGINX_VERSION?=1.26.0 #based off Nginx docker  version
+STACK_NAME?=nginx-opencti
+COMPOSE_FILE?=docker-compose.yml
+NGINX_VERSION?=1.27.0 #based off Nginx docker  version
 
 # build Nginx image & push to dockerhub
 build:
-	docker buildx build --platform linux/amd64 -t codeforafrica/cfa-opencti-nginx:$(NGINX_VERSION) --file nginx/Dockerfile nginx/ --push
+	docker buildx build -t codeforafrica/$(STACK_NAME):$(NGINX_VERSION) --file nginx/Dockerfile nginx/ --push
 
 # deploy openCTI stack
 deploy:

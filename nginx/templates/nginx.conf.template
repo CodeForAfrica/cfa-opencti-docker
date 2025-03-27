@@ -2,6 +2,7 @@
 server {
     listen ${NGINX_PORT};
     server_name ${NGINX_OPENCTI_SERVER_NAME};
+    client_max_body_size 50M;
 
     location / {
         proxy_pass http://opencti:8080;
