@@ -12,7 +12,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
+          - node.labels.role == opencti-core
       restart_policy: *default_restart_policy
     image: redis:7.4.2
     volumes:
@@ -24,7 +24,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == manager
+          - node.labels.role == manager
     ports:
       - "80:80"
     depends_on:
@@ -49,7 +49,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
+          - node.labels.role == opencti-core
       restart_policy: *default_restart_policy
     image: opencti/platform:6.5.3
     environment:
@@ -110,7 +110,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
+          - node.labels.role == opencti-core
       restart_policy: *default_restart_policy
     image: opencti/connector-export-file-stix:6.5.3
     environment:
@@ -131,7 +131,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
+          - node.labels.role == opencti-core
       restart_policy: *default_restart_policy
     image: opencti/connector-export-file-csv:6.5.3
     environment:
@@ -152,7 +152,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
+          - node.labels.role == opencti-core
       restart_policy: *default_restart_policy
     image: opencti/connector-export-file-txt:6.5.3
     environment:
@@ -174,7 +174,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
+          - node.labels.role == opencti-core
       restart_policy: *default_restart_policy
     image: opencti/connector-import-file-stix:6.5.3
     environment:
@@ -197,7 +197,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
+          - node.labels.role == opencti-core
       restart_policy: *default_restart_policy
     image: opencti/connector-import-document:6.5.3
     environment:
@@ -221,7 +221,7 @@ services:
       replicas: 1
       placement:
         constraints:
-        - node.labels.role == opencti-core
+          - node.labels.role == opencti-core
       restart_policy: *default_restart_policy
     image: opencti/connector-disarm-framework:6.5.3
     environment:
